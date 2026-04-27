@@ -25,7 +25,7 @@ typedef struct {
 
     #define V_PRE "Villager %ld: "
     #define VILLAGER_START V_PRE "Going into battle!\n"
-    #define VILLAGER_DRINK V_PRE "I need a drink... I see %u servings left.\n"
+    #define VILLAGER_DRINK V_PRE "I need a drink... I see %d servings left.\n"
     #define VILLAGER_POTION V_PRE "Hey Pano wake up! We need more potion.\n"
     #define VILLAGER_FIGHT V_PRE "Take that roman scum! Only %u left.\n"
     #define VILLAGER_END V_PRE "I'm going to sleep now.\n"
