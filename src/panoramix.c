@@ -6,6 +6,8 @@
 */
 
 #include "panoramix.h"
+#include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 static void panoramix_init(panoramix_t *panoramix, args_t *args)
@@ -26,7 +28,18 @@ static void panoramix_free(panoramix_t *panoramix)
 
 void panoramix_launch(panoramix_t *panoramix)
 {
-    (void)panoramix;
+    villager_thread_t *v_infos = calloc(panoramix->nb_villagers,
+        sizeof(villager_thread_t));
+
+    for (unsigned int i = 0; i < panoramix->nb_villagers; i++) {
+        v_infos[i].panoramix = panoramix;
+        v_infos[i].i = i;
+        pthread_create(&panoramix->threads[i], NULL,
+            &villagers_routine, &v_infos[i]);
+    }
+    for (unsigned int i = 0; i < panoramix->nb_villagers; i++)
+        pthread_join(panoramix->threads[i], NULL);
+    free(v_infos);
 }
 
 void panoramix(args_t *args)

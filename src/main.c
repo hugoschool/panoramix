@@ -33,5 +33,6 @@ int main(int argc, char **argv)
         fprintf(stderr, "Values must be >0.\n");
         return 84;
     }
+    panoramix(&args);
     return 0;
 }

@@ -6,6 +6,7 @@
 */
 
 #include "panoramix.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 villager_t *villagers_init(unsigned int nb_villagers, unsigned int nb_fights)
@@ -21,4 +22,13 @@ villager_t *villagers_init(unsigned int nb_villagers, unsigned int nb_fights)
 void villagers_free(villager_t *villagers)
 {
     free(villagers);
+}
+
+void *villagers_routine(void *arg)
+{
+    villager_thread_t *thread = arg;
+
+    printf(VILLAGER_START, thread->i);
+    printf(VILLAGER_END, thread->i);
+    return NULL;
 }
