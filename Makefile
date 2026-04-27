@@ -2,6 +2,10 @@ CC	:=	clang
 CFLAGS	:=	-Wall -Wextra -std=gnu17
 CPPFLAGS	:=	-I include
 
+ifeq ($(ENV), dev)
+	CFLAGS	+=	-g3
+endif
+
 SRC	:=	src/main.c \
 		src/panoramix.c \
 		src/villagers.c
