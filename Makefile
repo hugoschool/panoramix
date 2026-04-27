@@ -2,7 +2,9 @@ CC	:=	clang
 CFLAGS	:=	-Wall -Wextra -std=gnu17
 CPPFLAGS	:=	-I include
 
-SRC	:=	src/main.c
+SRC	:=	src/main.c \
+		src/panoramix.c \
+		src/villagers.c
 
 OBJ	:=	$(SRC:.c=.o)
 
