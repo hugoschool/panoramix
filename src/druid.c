@@ -25,10 +25,16 @@ void *druid_routine(void *arg)
 
     printf(DRUID_START);
     while (panoramix->refills_left > 0) {
-        if (pthread_mutex_trylock(panoramix->druid_mutex) != 0)
+        sem_wait(panoramix->druid_sem);
+        pthread_mutex_lock(panoramix->mutex);
+        if (panoramix->pot_servings > 0) {
+            pthread_mutex_unlock(panoramix->mutex);
+            sem_post(panoramix->druid_sem);
             continue;
+        }
         panoramix->pot_servings = panoramix->initial_pot_size;
         panoramix->refills_left--;
+        pthread_mutex_unlock(panoramix->mutex);
         printf(DRUID_WORK, panoramix->refills_left);
         reset_villagers(panoramix);
     }

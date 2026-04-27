@@ -34,6 +34,12 @@ typedef struct {
     unsigned int nb_fights;
 } villager_t;
 
+enum loop_status {
+    // Indicates to not release the semaphore as it should be done by the druid.
+    DONT_RELEASE,
+    RELEASE,
+};
+
 villager_t *villagers_init(unsigned int nb_villagers, unsigned int nb_fights);
 void villagers_free(villager_t *villagers);
 void *villagers_routine(void *arg);
@@ -54,8 +60,8 @@ typedef struct {
     int refills_left;
     villager_t *villagers;
     pthread_mutex_t *mutex;
-    pthread_mutex_t *druid_mutex;
     sem_t *sem;
+    sem_t *druid_sem;
 } panoramix_t;
 
 typedef struct {
