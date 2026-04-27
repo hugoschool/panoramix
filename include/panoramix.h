@@ -38,20 +38,32 @@ villager_t *villagers_init(unsigned int nb_villagers, unsigned int nb_fights);
 void villagers_free(villager_t *villagers);
 void *villagers_routine(void *arg);
 
+    #define D_PRE "Druid: "
+    #define DRUID_START D_PRE "I'm ready... but sleepy...\n"
+    #define __D_W_1 "Ah! Yes, yes, I'm awake! Working on it! "
+    #define __D_W_2 "Beware I can only make %u more refills after this one.\n"
+    #define DRUID_WORK D_PRE __D_W_1 __D_W_2
+    #define DRUID_END D_PRE "I'm out of viscum. I'm going back to... zZz\n"
+
 typedef struct {
     pthread_t *threads;
     int pot_servings;
     unsigned int nb_villagers;
+    unsigned int initial_nb_fights;
+    unsigned int initial_pot_size;
+    int refills_left;
     villager_t *villagers;
     pthread_mutex_t *mutex;
+    pthread_mutex_t *druid_mutex;
+    sem_t *sem;
 } panoramix_t;
 
 typedef struct {
     panoramix_t *panoramix;
     size_t i;
-    sem_t *sem;
 } villager_thread_t;
 
+void *druid_routine(void *arg);
 void panoramix(args_t *args);
 
 #endif

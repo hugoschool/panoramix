@@ -7,6 +7,7 @@ ifeq ($(ENV), dev)
 endif
 
 SRC	:=	src/main.c \
+		src/druid.c \
 		src/panoramix.c \
 		src/villagers.c
 

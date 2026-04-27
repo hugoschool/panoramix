@@ -8,6 +8,7 @@
 #include "panoramix.h"
 #include <pthread.h>
 #include <semaphore.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,19 +27,23 @@ void villagers_free(villager_t *villagers)
     free(villagers);
 }
 
-static void villager_iteration(villager_thread_t *thread)
+// Returns true if the semaphore shouldn't be released
+static bool villager_iteration(villager_thread_t *thread)
 {
     pthread_mutex_lock(thread->panoramix->mutex);
     printf(VILLAGER_DRINK, thread->i, thread->panoramix->pot_servings);
     if (thread->panoramix->pot_servings == 0) {
         printf(VILLAGER_POTION, thread->i);
         thread->panoramix->pot_servings = -1;
-        return;
+        pthread_mutex_unlock(thread->panoramix->druid_mutex);
+        pthread_mutex_unlock(thread->panoramix->mutex);
+        return true;
     }
     thread->panoramix->pot_servings--;
     pthread_mutex_unlock(thread->panoramix->mutex);
     VILLAGER_I(thread->i).nb_fights--;
     printf(VILLAGER_FIGHT, thread->i, VILLAGER_I(thread->i).nb_fights);
+    return false;
 }
 
 void *villagers_routine(void *arg)
@@ -46,12 +51,14 @@ void *villagers_routine(void *arg)
     villager_thread_t *thread = arg;
 
     printf(VILLAGER_START, thread->i);
-    while (VILLAGER_I(thread->i).nb_fights > 0) {
-        if (sem_trywait(thread->sem) != 0
+    while (VILLAGER_I(thread->i).nb_fights > 0
+        && thread->panoramix->refills_left >= 0) {
+        if (sem_trywait(thread->panoramix->sem) != 0
             || thread->panoramix->pot_servings == -1)
             continue;
-        villager_iteration(thread);
-        sem_post(thread->sem);
+        if (villager_iteration(thread))
+            continue;
+        sem_post(thread->panoramix->sem);
     }
     printf(VILLAGER_END, thread->i);
     return NULL;
