@@ -1,0 +1,8 @@
+# Binaries
+*.a
+*.o
+*.so
+panoramix
+
+# VSCode
+.vscode
