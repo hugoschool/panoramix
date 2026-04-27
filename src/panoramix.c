@@ -19,6 +19,7 @@ static void panoramix_init(panoramix_t *panoramix, args_t *args)
     panoramix->pot_servings = args->pot_size;
     panoramix->nb_villagers = args->nb_villagers;
     panoramix->villagers = villagers_init(args->nb_villagers, args->nb_fights);
+    panoramix->mutex = malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(panoramix->mutex, NULL);
 }
 
@@ -27,6 +28,7 @@ static void panoramix_free(panoramix_t *panoramix)
     free(panoramix->threads);
     villagers_free(panoramix->villagers);
     pthread_mutex_destroy(panoramix->mutex);
+    free(panoramix->mutex);
 }
 
 void panoramix_launch(panoramix_t *panoramix)
