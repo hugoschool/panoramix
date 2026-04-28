@@ -47,16 +47,16 @@ void *villagers_routine(void *arg);
     #define D_PRE "Druid: "
     #define DRUID_START D_PRE "I'm ready... but sleepy...\n"
     #define __D_W_1 "Ah! Yes, yes, I'm awake! Working on it! "
-    #define __D_W_2 "Beware I can only make %u more refills after this one.\n"
+    #define __D_W_2 "Beware I can only make %d more refills after this one.\n"
     #define DRUID_WORK D_PRE __D_W_1 __D_W_2
     #define DRUID_END D_PRE "I'm out of viscum. I'm going back to... zZz\n"
 
 typedef struct {
     int pot_servings;
+    int refills_left;
     unsigned int nb_villagers;
     unsigned int initial_nb_fights;
     unsigned int initial_pot_size;
-    int refills_left;
     villager_t *villagers;
     pthread_mutex_t *servings_mutex;
     pthread_mutex_t *refills_mutex;
