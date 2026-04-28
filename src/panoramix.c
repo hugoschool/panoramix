@@ -25,8 +25,8 @@ static void panoramix_init(panoramix_t *panoramix, args_t *args)
     panoramix->druid_sem = calloc(1, sizeof(sem_t));
     pthread_mutex_init(panoramix->servings_mutex, NULL);
     pthread_mutex_init(panoramix->refills_mutex, NULL);
-    sem_init(panoramix->druid_sem, 0, 1);
-    sem_init(panoramix->villagers_sem, 0, panoramix->nb_villagers);
+    sem_init(panoramix->druid_sem, 0, 0);
+    sem_init(panoramix->villagers_sem, 0, 0);
 }
 
 static void panoramix_free(panoramix_t *panoramix)
@@ -58,6 +58,7 @@ void panoramix_launch(panoramix_t *panoramix)
     }
     for (unsigned int i = 0; i < panoramix->nb_villagers; i++)
         pthread_join(villager_threads[i], NULL);
+    sem_post(panoramix->druid_sem);
     pthread_join(druid_thread, NULL);
     free(v_infos);
 }
