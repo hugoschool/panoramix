@@ -29,21 +29,21 @@ void villagers_free(villager_t *villagers)
 
 static enum loop_status villager_iteration(villager_thread_t *thread)
 {
-    pthread_mutex_lock(thread->panoramix->mutex);
     if (thread->panoramix->pot_servings >= 0)
         printf(VILLAGER_DRINK, thread->i, thread->panoramix->pot_servings);
     if (thread->panoramix->pot_servings == 0) {
         printf(VILLAGER_POTION, thread->i);
+        pthread_mutex_lock(thread->panoramix->servings_mutex);
         thread->panoramix->pot_servings = -1;
-        pthread_mutex_unlock(thread->panoramix->mutex);
+        pthread_mutex_unlock(thread->panoramix->servings_mutex);
         sem_post(thread->panoramix->druid_sem);
         return DONT_RELEASE;
     } else if (thread->panoramix->pot_servings < 0) {
-        pthread_mutex_unlock(thread->panoramix->mutex);
         return RELEASE;
     }
+    pthread_mutex_lock(thread->panoramix->servings_mutex);
     thread->panoramix->pot_servings--;
-    pthread_mutex_unlock(thread->panoramix->mutex);
+    pthread_mutex_unlock(thread->panoramix->servings_mutex);
     VILLAGER_I(thread->i).nb_fights--;
     printf(VILLAGER_FIGHT, thread->i, VILLAGER_I(thread->i).nb_fights);
     return RELEASE;
@@ -55,10 +55,10 @@ void *villagers_routine(void *arg)
 
     printf(VILLAGER_START, thread->i);
     while (VILLAGER_I(thread->i).nb_fights > 0
-        && thread->panoramix->refills_left >= 0) {
-        sem_wait(thread->panoramix->sem);
+        && thread->panoramix->refills_left != 0) {
+        sem_wait(thread->panoramix->villagers_sem);
         if (thread->panoramix->pot_servings == -1) {
-            sem_post(thread->panoramix->sem);
+            sem_post(thread->panoramix->villagers_sem);
             continue;
         }
         switch (villager_iteration(thread)) {
@@ -67,7 +67,7 @@ void *villagers_routine(void *arg)
             case RELEASE:
                 break;
         }
-        sem_post(thread->panoramix->sem);
+        sem_post(thread->panoramix->villagers_sem);
     }
     printf(VILLAGER_END, thread->i);
     return NULL;

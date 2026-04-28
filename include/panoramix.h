@@ -59,8 +59,9 @@ typedef struct {
     unsigned int initial_pot_size;
     int refills_left;
     villager_t *villagers;
-    pthread_mutex_t *mutex;
-    sem_t *sem;
+    pthread_mutex_t *servings_mutex;
+    pthread_mutex_t *refills_mutex;
+    sem_t *villagers_sem;
     sem_t *druid_sem;
 } panoramix_t;
 

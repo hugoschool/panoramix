@@ -22,23 +22,27 @@ static void panoramix_init(panoramix_t *panoramix, args_t *args)
     panoramix->refills_left = args->nb_refills;
     panoramix->nb_villagers = args->nb_villagers;
     panoramix->villagers = villagers_init(args->nb_villagers, args->nb_fights);
-    panoramix->mutex = malloc(sizeof(pthread_mutex_t));
-    panoramix->sem = calloc(1, sizeof(sem_t));
+    panoramix->servings_mutex = malloc(sizeof(pthread_mutex_t));
+    panoramix->refills_mutex = malloc(sizeof(pthread_mutex_t));
+    panoramix->villagers_sem = calloc(1, sizeof(sem_t));
     panoramix->druid_sem = calloc(1, sizeof(sem_t));
-    pthread_mutex_init(panoramix->mutex, NULL);
+    pthread_mutex_init(panoramix->servings_mutex, NULL);
+    pthread_mutex_init(panoramix->refills_mutex, NULL);
     sem_init(panoramix->druid_sem, 0, 1);
-    sem_init(panoramix->sem, 0, panoramix->nb_villagers);
+    sem_init(panoramix->villagers_sem, 0, panoramix->nb_villagers);
 }
 
 static void panoramix_free(panoramix_t *panoramix)
 {
     free(panoramix->threads);
     villagers_free(panoramix->villagers);
-    pthread_mutex_destroy(panoramix->mutex);
-    free(panoramix->mutex);
-    sem_destroy(panoramix->sem);
+    pthread_mutex_destroy(panoramix->servings_mutex);
+    pthread_mutex_destroy(panoramix->refills_mutex);
+    free(panoramix->servings_mutex);
+    free(panoramix->refills_mutex);
+    sem_destroy(panoramix->villagers_sem);
     sem_destroy(panoramix->druid_sem);
-    free(panoramix->sem);
+    free(panoramix->villagers_sem);
     free(panoramix->druid_sem);
 }
 
