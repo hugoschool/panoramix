@@ -52,7 +52,6 @@ void *villagers_routine(void *arg);
     #define DRUID_END D_PRE "I'm out of viscum. I'm going back to... zZz\n"
 
 typedef struct {
-    pthread_t *threads;
     int pot_servings;
     unsigned int nb_villagers;
     unsigned int initial_nb_fights;

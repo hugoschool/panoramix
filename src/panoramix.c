@@ -13,9 +13,6 @@
 
 static void panoramix_init(panoramix_t *panoramix, args_t *args)
 {
-    const size_t nb_threads = args->nb_villagers + 1;
-
-    panoramix->threads = calloc(nb_threads, sizeof(pthread_t));
     panoramix->pot_servings = args->pot_size;
     panoramix->initial_nb_fights = args->nb_fights;
     panoramix->initial_pot_size = args->pot_size;
@@ -34,7 +31,6 @@ static void panoramix_init(panoramix_t *panoramix, args_t *args)
 
 static void panoramix_free(panoramix_t *panoramix)
 {
-    free(panoramix->threads);
     villagers_free(panoramix->villagers);
     pthread_mutex_destroy(panoramix->servings_mutex);
     pthread_mutex_destroy(panoramix->refills_mutex);
@@ -50,17 +46,19 @@ void panoramix_launch(panoramix_t *panoramix)
 {
     villager_thread_t *v_infos = calloc(panoramix->nb_villagers,
         sizeof(villager_thread_t));
-    unsigned int i = 0;
+    pthread_t druid_thread;
+    pthread_t villager_threads[panoramix->nb_villagers];
 
-    for (; i < panoramix->nb_villagers; i++) {
+    pthread_create(&druid_thread, NULL, &druid_routine, panoramix);
+    for (unsigned int i = 0; i < panoramix->nb_villagers; i++) {
         v_infos[i].panoramix = panoramix;
         v_infos[i].i = i;
-        pthread_create(&panoramix->threads[i], NULL,
+        pthread_create(&villager_threads[i], NULL,
             &villagers_routine, &v_infos[i]);
     }
-    pthread_create(&panoramix->threads[i], NULL, &druid_routine, panoramix);
-    for (unsigned int i = 0; i < panoramix->nb_villagers + 1; i++)
-        pthread_join(panoramix->threads[i], NULL);
+    for (unsigned int i = 0; i < panoramix->nb_villagers; i++)
+        pthread_join(villager_threads[i], NULL);
+    pthread_join(druid_thread, NULL);
     free(v_infos);
 }
 
