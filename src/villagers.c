@@ -41,7 +41,6 @@ static void villager_iteration(villager_thread_t *thread)
         thread->panoramix->pot_servings = -1;
         sem_post(thread->panoramix->druid_sem);
         sem_wait(thread->panoramix->villagers_sem);
-        return;
     } else if (thread->panoramix->pot_servings < 0) {
         sem_wait(thread->panoramix->villagers_sem);
     }
