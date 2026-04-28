@@ -18,12 +18,17 @@ villager_t *villagers_init(unsigned int nb_villagers, unsigned int nb_fights)
 
     for (unsigned int i = 0; i < nb_villagers; i++) {
         villagers[i].nb_fights = nb_fights;
+        villagers[i].fight_mutex = malloc(sizeof(pthread_mutex_t));
+        pthread_mutex_init(villagers[i].fight_mutex, NULL);
     }
     return villagers;
 }
 
-void villagers_free(villager_t *villagers)
+void villagers_free(villager_t *villagers, unsigned int nb_villagers)
 {
+    for (unsigned int i = 0; i < nb_villagers; i++) {
+        pthread_mutex_destroy(villagers[i].fight_mutex);
+    }
     free(villagers);
 }
 
@@ -41,7 +46,9 @@ static void villager_iteration(villager_thread_t *thread)
         sem_wait(thread->panoramix->villagers_sem);
     }
     thread->panoramix->pot_servings--;
+    pthread_mutex_lock(VILLAGER_I(thread->i).fight_mutex);
     VILLAGER_I(thread->i).nb_fights--;
+    pthread_mutex_unlock(VILLAGER_I(thread->i).fight_mutex);
     printf(VILLAGER_FIGHT, thread->i, VILLAGER_I(thread->i).nb_fights);
 }
 

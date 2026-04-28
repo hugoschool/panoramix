@@ -31,7 +31,7 @@ static void panoramix_init(panoramix_t *panoramix, args_t *args)
 
 static void panoramix_free(panoramix_t *panoramix)
 {
-    villagers_free(panoramix->villagers);
+    villagers_free(panoramix->villagers, panoramix->nb_villagers);
     pthread_mutex_destroy(panoramix->servings_mutex);
     pthread_mutex_destroy(panoramix->refills_mutex);
     free(panoramix->servings_mutex);
@@ -40,6 +40,19 @@ static void panoramix_free(panoramix_t *panoramix)
     sem_destroy(panoramix->druid_sem);
     free(panoramix->villagers_sem);
     free(panoramix->druid_sem);
+}
+
+static void panoramix_joiner(panoramix_t *panoramix,
+    pthread_t *villager_threads, pthread_t druid_thread)
+{
+    for (unsigned int i = 0; i < panoramix->nb_villagers; i++) {
+        pthread_join(villager_threads[i], NULL);
+        pthread_mutex_lock(panoramix->villagers[i].fight_mutex);
+        panoramix->villagers[i].nb_fights = -1;
+        pthread_mutex_unlock(panoramix->villagers[i].fight_mutex);
+    }
+    sem_post(panoramix->druid_sem);
+    pthread_join(druid_thread, NULL);
 }
 
 void panoramix_launch(panoramix_t *panoramix)
@@ -56,10 +69,7 @@ void panoramix_launch(panoramix_t *panoramix)
         pthread_create(&villager_threads[i], NULL,
             &villagers_routine, &v_infos[i]);
     }
-    for (unsigned int i = 0; i < panoramix->nb_villagers; i++)
-        pthread_join(villager_threads[i], NULL);
-    sem_post(panoramix->druid_sem);
-    pthread_join(druid_thread, NULL);
+    panoramix_joiner(panoramix, villager_threads, druid_thread);
     free(v_infos);
 }
 

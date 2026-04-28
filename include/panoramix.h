@@ -27,15 +27,16 @@ typedef struct {
     #define VILLAGER_START V_PRE "Going into battle!\n"
     #define VILLAGER_DRINK V_PRE "I need a drink... I see %d servings left.\n"
     #define VILLAGER_POTION V_PRE "Hey Pano wake up! We need more potion.\n"
-    #define VILLAGER_FIGHT V_PRE "Take that roman scum! Only %u left.\n"
+    #define VILLAGER_FIGHT V_PRE "Take that roman scum! Only %d left.\n"
     #define VILLAGER_END V_PRE "I'm going to sleep now.\n"
 
 typedef struct {
-    unsigned int nb_fights;
+    int nb_fights;
+    pthread_mutex_t *fight_mutex;
 } villager_t;
 
 villager_t *villagers_init(unsigned int nb_villagers, unsigned int nb_fights);
-void villagers_free(villager_t *villagers);
+void villagers_free(villager_t *villagers, unsigned int nb_villagers);
 void *villagers_routine(void *arg);
 
     #define D_PRE "Druid: "
