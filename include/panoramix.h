@@ -10,6 +10,7 @@
 
     #include <pthread.h>
     #include <semaphore.h>
+    #include <stdbool.h>
 
     #define USAGE_OPTIONS "<nb_villagers> <pot_size> <nb_fights> <nb_refills>"
     #define USAGE "USAGE: ./panoramix "USAGE_OPTIONS
@@ -65,6 +66,6 @@ typedef struct {
 } villager_thread_t;
 
 void *druid_routine(void *arg);
-void panoramix(args_t *args);
+bool panoramix(args_t *args);
 
 #endif

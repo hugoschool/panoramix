@@ -16,9 +16,13 @@ villager_t *villagers_init(unsigned int nb_villagers, unsigned int nb_fights)
 {
     villager_t *villagers = calloc(nb_villagers, sizeof(villager_t));
 
+    if (villagers == NULL)
+        return NULL;
     for (unsigned int i = 0; i < nb_villagers; i++) {
         villagers[i].nb_fights = nb_fights;
         villagers[i].fight_mutex = malloc(sizeof(pthread_mutex_t));
+        if (villagers[i].fight_mutex == NULL)
+            return NULL;
         pthread_mutex_init(villagers[i].fight_mutex, NULL);
     }
     return villagers;
