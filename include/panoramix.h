@@ -15,10 +15,10 @@
     #define USAGE "USAGE: ./panoramix "USAGE_OPTIONS
 
 typedef struct {
-    unsigned int nb_villagers;
-    unsigned int pot_size;
-    unsigned int nb_fights;
-    unsigned int nb_refills;
+    int nb_villagers;
+    int pot_size;
+    int nb_fights;
+    int nb_refills;
 } args_t;
 
     #define VILLAGER_I(i) thread->panoramix->villagers[i]
