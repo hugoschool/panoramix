@@ -28,6 +28,7 @@ void villagers_free(villager_t *villagers, unsigned int nb_villagers)
 {
     for (unsigned int i = 0; i < nb_villagers; i++) {
         pthread_mutex_destroy(villagers[i].fight_mutex);
+        free(villagers[i].fight_mutex);
     }
     free(villagers);
 }
