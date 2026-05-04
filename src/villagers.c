@@ -63,6 +63,11 @@ void *villagers_routine(void *arg)
     printf(VILLAGER_START, thread->i);
     while (VILLAGER_I(thread->i).nb_fights > 0) {
         pthread_mutex_lock(thread->panoramix->servings_mutex);
+        if (thread->panoramix->pot_servings == 0
+            && thread->panoramix->refills_left <= 0) {
+            pthread_mutex_unlock(thread->panoramix->servings_mutex);
+            break;
+        }
         if (thread->panoramix->pot_servings == -1)
             continue;
         villager_iteration(thread);
