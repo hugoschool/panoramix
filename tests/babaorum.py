@@ -53,6 +53,7 @@ class PanoramixOutputTest:
         self.nbFights = nbFights
         self.nbRefills = nbRefills
 
+        self._statusCode = 0
         self.maxTimeout = 3
 
     def launch(self) -> None:
@@ -74,14 +75,16 @@ class PanoramixOutputTest:
 
         try:
             self.stdout = self.pano.communicate(timeout=3)[0].decode()
+            self._statusCode = self.pano.returncode
         except Exception as e:
+            self._statusCode = 84
             pass
 
-        if self.pano.returncode != 0:
+        if self._statusCode != 0:
             raise Exception("Non zero return code")
 
     def statusCode(self) -> int:
-        return self.pano.returncode
+        return self._statusCode
 
     def verifyDruid(self, druid) -> None:
         for i, line in enumerate(druid):
@@ -195,11 +198,13 @@ if __name__ == "__main__":
         try:
             print(f"Launching {Colors.PURPLE}\"{name}\"{Colors.RESET} with: {test.nbVillagers}, {test.potSize}, {test.nbFights}, {test.nbRefills}")
             test.launch()
-            test.validate()
-            print(f"{Colors.GREEN}Valid test!{Colors.RESET}")
         except Exception as e:
             if test.statusCode() == statusCode:
                 print(f"{Colors.GREEN}Valid test!{Colors.RESET} Status code = {statusCode}")
-            else:
-                print(f"{Colors.RED}Error: {e}{Colors.RESET}")
             continue
+
+        try:
+            test.validate()
+            print(f"{Colors.GREEN}Valid test!{Colors.RESET}")
+        except Exception as e:
+            print(f"{Colors.RED}Error: {e}{Colors.RESET}")
