@@ -14,6 +14,8 @@ VILLAGER_POTION = VILLAGER_PREFIX + "Hey Pano wake up! We need more potion."
 VILLAGER_FIGHT = VILLAGER_PREFIX + "Take that roman scum! Only ([0-9]*) left."
 VILLAGER_END = VILLAGER_PREFIX + "I'm going to sleep now."
 
+RANDOM_PARAMS = 25
+
 class Colors:
     GREEN = '\033[92m'
     RED = '\033[91m'
@@ -27,6 +29,18 @@ def generateValidParams() -> (int, int, int, int):
     nbRefills = randint(1, 80)
 
     while potSize * nbRefills < nbVillagers * nbFights:
+        potSize = randint(1, 80)
+        nbRefills = randint(1, 80)
+
+    return (nbVillagers, potSize, nbFights, nbRefills)
+
+def generateInvalidParams() -> (int, int, int, int):
+    nbVillagers = randint(1, 50)
+    nbFights = randint(1, 50)
+    potSize = randint(1, 80)
+    nbRefills = randint(1, 80)
+
+    while potSize * nbRefills >= nbVillagers * nbFights:
         potSize = randint(1, 80)
         nbRefills = randint(1, 80)
 
@@ -158,11 +172,6 @@ if __name__ == "__main__":
     print("- Correctly assert that the pot has enough size")
     print()
 
-    randomParams = [
-        generateValidParams(),
-        generateValidParams(),
-    ]
-
     tests = [
         (PanoramixOutputTest(3, 5, 3, 1), "Subject test", 0),
         (PanoramixOutputTest(3, 15, 3, 1), "Higher pot size than fights", 0),
@@ -174,9 +183,13 @@ if __name__ == "__main__":
         (PanoramixOutputTest("", "", "", ""), "No args", 84),
     ]
 
-    for i in range(len(randomParams)):
-        params = randomParams[i]
-        tests.append((PanoramixOutputTest(params[0], params[1], params[2], params[3]), f"Random params {i}", 0))
+    for i in range(RANDOM_PARAMS):
+        params = generateValidParams()
+        tests.append((PanoramixOutputTest(params[0], params[1], params[2], params[3]), f"Random valid params {i}", 0))
+
+    for i in range(RANDOM_PARAMS):
+        params = generateInvalidParams()
+        tests.append((PanoramixOutputTest(params[0], params[1], params[2], params[3]), f"Random invalid params {i}", 0))
 
     for (test, name, statusCode) in tests:
         try:
