@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import re
 from random import randint
 
@@ -203,6 +204,7 @@ if __name__ == "__main__":
         params = generateInvalidParams()
         tests.append((PanoramixOutputTest(params[0], params[1], params[2], params[3]), f"Random invalid params {i}", 0))
 
+    finalStatusCode = 0
     for (test, name, statusCode) in tests:
         try:
             print(f"Launching {Colors.PURPLE}\"{name}\"{Colors.RESET} with: {test.nbVillagers}, {test.potSize}, {test.nbFights}, {test.nbRefills}")
@@ -210,10 +212,16 @@ if __name__ == "__main__":
         except Exception as e:
             if test.statusCode() == statusCode:
                 print(f"{Colors.GREEN}Valid test!{Colors.RESET} Status code = {statusCode}")
+            else:
+                print(f"{Colors.RED}Incorrect status code: {e}{Colors.RESET}")
+                finalStatusCode = 84
             continue
 
         try:
             test.validate()
             print(f"{Colors.GREEN}Valid test!{Colors.RESET}")
         except Exception as e:
+            finalStatusCode = 84
             print(f"{Colors.RED}Error: {e}{Colors.RESET}")
+
+    sys.exit(finalStatusCode)
