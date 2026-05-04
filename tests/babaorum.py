@@ -4,15 +4,15 @@ from random import randint
 
 DRUID_PREFIX = "Druid: "
 DRUID_START = DRUID_PREFIX + "I'm ready... but sleepy..."
-DRUID_WORK = DRUID_PREFIX + "Ah! Yes, yes, I'm awake! Working on it! Beware I can only make ([0-9]*) more refills after this one\\.$"
+DRUID_WORK = DRUID_PREFIX + "Ah! Yes, yes, I'm awake! Working on it! Beware I can only make ([0-9]*) more refills after this one\\."
 DRUID_END = DRUID_PREFIX + "I'm out of viscum. I'm going back to... zZz"
 
 VILLAGER_PREFIX = "Villager ([0-9]*): "
-VILLAGER_START = VILLAGER_PREFIX + "Going into battle!"
-VILLAGER_DRINK = VILLAGER_PREFIX + "I need a drink... I see ([0-9]*) servings left."
-VILLAGER_POTION = VILLAGER_PREFIX + "Hey Pano wake up! We need more potion."
-VILLAGER_FIGHT = VILLAGER_PREFIX + "Take that roman scum! Only ([0-9]*) left."
-VILLAGER_END = VILLAGER_PREFIX + "I'm going to sleep now."
+VILLAGER_START = VILLAGER_PREFIX + "Going into battle!$"
+VILLAGER_DRINK = VILLAGER_PREFIX + "I need a drink\\.\\.\\. I see ([0-9]*) servings left\\.$"
+VILLAGER_POTION = VILLAGER_PREFIX + "Hey Pano wake up! We need more potion\\.$"
+VILLAGER_FIGHT = VILLAGER_PREFIX + "Take that roman scum! Only ([0-9]*) left\\.$"
+VILLAGER_END = VILLAGER_PREFIX + "I'm going to sleep now\\.$"
 
 RANDOM_PARAMS = 25
 
@@ -103,23 +103,26 @@ class PanoramixOutputTest:
                 raise Exception("Incorrect druid instruction")
 
     def verifyVillager(self, villager, nb) -> None:
-        i = 0
+        i = -1
         for _ in range(len(villager)):
             i += 1
             if i >= len(villager):
                 break
             line = villager[i]
 
-            if i == 0 and len(re.findall(VILLAGER_START, line)) != 1:
+            if i == 0 and re.match(VILLAGER_START, line, flags=re.MULTILINE) is None:
                 raise Exception("Invalid villager start")
 
-            if i == len(villager) - 1 and len(re.findall(VILLAGER_END, line)) != 1:
+            if i == len(villager) - 1 and re.match(VILLAGER_END, line, flags=re.MULTILINE) is None:
                 raise Exception("Invalid villager end")
 
             if i == 0 or i == len(villager) - 1:
                 continue
 
-            villagerDrink = re.findall(VILLAGER_DRINK, line)
+            if re.match(VILLAGER_DRINK, line, flags=re.MULTILINE) is None:
+                raise Exception("Incorrect villager drink instruction")
+
+            villagerDrink = re.findall(VILLAGER_DRINK, line, flags=re.MULTILINE)
             if len(villagerDrink) != 1 and len(villagerDrink[0]) != 2:
                 raise Exception("Incorrect villager drink instruction")
 
@@ -128,14 +131,20 @@ class PanoramixOutputTest:
 
             servingsLeft = int(villagerDrink[0][1])
             if servingsLeft == 0:
-                villagerPotion = re.findall(VILLAGER_POTION, line)
+                if re.match(VILLAGER_POTION, line, flags=re.MULTILINE) is None:
+                    raise Exception("Incorrect villager potion instruction")
+
+                villagerPotion = re.findall(VILLAGER_POTION, line, flags=re.MULTILINE)
                 if len(villagerPotion) != 1 and len(villagerPotion[0]) != 2:
                     raise Exception("Incorrect villager potion instruction")
 
                 i += 1
                 line = villager[i]
 
-            villagerFight = re.findall(VILLAGER_FIGHT, line)
+            if re.match(VILLAGER_FIGHT, line, flags=re.MULTILINE) is None:
+                raise Exception("Incorrect villager fight instruction")
+
+            villagerFight = re.findall(VILLAGER_FIGHT, line, flags=re.MULTILINE)
             if len(villagerFight) != 1 and len(villagerFight[0]) != 2:
                 raise Exception("Incorrect villager fight instruction")
 
@@ -147,11 +156,11 @@ class PanoramixOutputTest:
         druid = []
 
         for line in lines:
-            villagerMatchess = re.findall(VILLAGER_PREFIX, line)
+            villagerMatches = re.findall(VILLAGER_PREFIX, line, flags=re.MULTILINE)
             if line.startswith(DRUID_PREFIX):
                 druid.append(line)
-            elif len(villagerMatchess) != 0:
-                nb = int(villagerMatchess[0])
+            elif len(villagerMatches) != 0:
+                nb = int(villagerMatches[0])
 
                 if nb not in villagers:
                     villagers[nb] = []
